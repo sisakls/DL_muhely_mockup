@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 #https://nextjournal.com/gkoehler/pytorch-mnist
+log_interval = 100
 
 class Net(nn.Module):
     def __init__(self):
@@ -34,7 +35,7 @@ def train(network, train_loader, train_losses, train_counter, optimizer, epoch):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
-        if batch_idx % 10 == 0: #hardcoded log_interval
+        if batch_idx % log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
             epoch, batch_idx * len(data), len(train_loader.dataset),
             100. * batch_idx / len(train_loader), loss.item()))
