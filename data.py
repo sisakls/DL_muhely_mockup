@@ -8,9 +8,9 @@ batch_size = 64
 def task_split(data, label_list):
     task_dict = {}
     
-    for ind, lbl_set in enumerate(label_list):
+    for idx, lbl_set in enumerate(label_list):
         task = data.filter(lambda x: x['label'] in lbl_set)
-        task_dict['task_{}'.format(ind)] = task
+        task_dict['task_{}'.format(idx)] = task
         
     return datasets.DatasetDict(task_dict)
 
@@ -45,10 +45,13 @@ def prep_data():
 
     ds_train = tasks.with_transform(transform_func)
     ds_test  = data['test'].with_transform(transform_func)
-    ds_subtests = subtests.with_transform(transform_func)
+    ds_subtest = subtests.with_transform(transform_func)
 
-    train_loader = torch.utils.data.DataLoader(ds_train, collate_fn=collate_fun, batch_size=batch_size)
-    test_loader  = torch.utils.data.DataLoader(ds_test, collate_fn=collate_fun, batch_size=batch_size)
-    subtest_loader = torch.utils.data.DataLoader(ds_subtest, collate_fn=collate_fun, batch_size=batch_size)
+    train_dict = {}
+    for key, data in ds_train.items():
+        train_dict[key] = torch.utils.data.DataLoader(data, collate_fn=collate_fun, batch_size=batch_size)
+    test_dict  = {'all': torch.utils.data.DataLoader(ds_test, collate_fn=collate_fun, batch_size=batch_size)}
+    for key, subtest in ds_subtest.items():
+        test_dict[key] = torch.utils.data.DataLoader(subtest, collate_fn=collate_fun, batch_size=batch_size)
     
-    return train_loader, test_loader, subtest_loader
+    return train_dict, test_dict

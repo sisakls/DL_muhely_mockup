@@ -15,17 +15,27 @@ num_epochs = 1
 learning_rate = 0.01
 momentum = 0.5
 
-train_loader, test_loader, subtest_loader = data.prep_data()
+train_dict, test_dict = data.prep_data()
 
 network = model.Net()
 optimizer = optim.SGD(network.parameters(), lr=learning_rate, momentum=momentum)
 
 train_losses = []
-train_counter = []
-test_losses = []
-test_counter = [i*len(train_loader.dataset) for i in range(2)]
+test_losses = {}
+for subtest in test_dict.keys():
+    test_losses[subtest] = []
+test_correct = {}
+for subtest in test_dict.keys():
+    test_correct[subtest] = []
 
-model.test(network, test_loader, test_losses, test_counter)
-for epoch in range(1, num_epochs + 1):
-    model.train(network, train_loader, train_losses, train_counter, optimizer, epoch)
-    model.test(network, test_loader, test_losses, test_counter)
+for subtest, test_loader in test_dict.items():
+    model.test(network, test_loader, test_losses[subtest], test_correct[subtest])
+
+for task, train_loader in train_dict.items():
+    for epoch in range(1, num_epochs + 1):
+        model.train(network, train_loader, train_losses, optimizer, epoch)
+        for subtest, test_loader in test_dict.items():
+            model.test(network, test_loader, test_losses[subtest], test_correct[subtest])
+
+for k, v in test_correct.items():
+    print(k,'\n', v, '\n')

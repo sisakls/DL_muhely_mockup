@@ -27,7 +27,7 @@ class Net(nn.Module):
     
 
     
-def train(network, train_loader, train_losses, train_counter, optimizer, epoch):
+def train(network, train_loader, train_losses, optimizer, epoch):
     network.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         optimizer.zero_grad()
@@ -40,14 +40,13 @@ def train(network, train_loader, train_losses, train_counter, optimizer, epoch):
             epoch, batch_idx * len(data), len(train_loader.dataset),
             100. * batch_idx / len(train_loader), loss.item()))
         train_losses.append(loss.item())
-        train_counter.append(
-            (batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
+
         #torch.save(network.state_dict(), '/results/model.pth')
         #torch.save(optimizer.state_dict(), '/results/optimizer.pth')
         
         
         
-def test(network, test_loader, test_losses, test_counter):
+def test(network, test_loader, test_losses, test_correct):
     network.eval()
     test_loss = 0
     correct = 0
@@ -59,6 +58,7 @@ def test(network, test_loader, test_losses, test_counter):
             correct += pred.eq(target.data.view_as(pred)).sum()
     test_loss /= len(test_loader.dataset)
     test_losses.append(test_loss)
+    test_correct.append(correct)
     print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
