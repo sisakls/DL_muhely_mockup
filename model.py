@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 #https://nextjournal.com/gkoehler/pytorch-mnist
-log_interval = 100
+log_interval = 20
 
 class Net(nn.Module):
     def __init__(self):
@@ -46,7 +46,7 @@ def train(network, train_loader, train_losses, optimizer, epoch):
         
         
         
-def test(network, test_loader, test_losses, test_correct):
+def test(network, test_loader, test_losses, test_correct, set_name):
     network.eval()
     test_loss = 0
     correct = 0
@@ -59,6 +59,6 @@ def test(network, test_loader, test_losses, test_correct):
     test_loss /= len(test_loader.dataset)
     test_losses.append(test_loss)
     test_correct.append(correct)
-    print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
+    print('Test set: {}, Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+        set_name, test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
