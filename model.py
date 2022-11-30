@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 #https://nextjournal.com/gkoehler/pytorch-mnist
-log_interval = 20
+log_interval = 50
 
 class Net(nn.Module):
     def __init__(self):
@@ -17,13 +17,18 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(50, 10)
 
     def forward(self, x):
+        output = []
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        output.append(x)
         x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
         x = x.view(-1, 320)
+        output.append(x)
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
-        return F.log_softmax(x)
+        x = F.log_softmax(x)
+        output.append(x)
+        return output
     
 
     
@@ -32,7 +37,7 @@ def train(network, train_loader, train_losses, optimizer, epoch):
     for batch_idx, (data, target) in enumerate(train_loader):
         optimizer.zero_grad()
         output = network(data)
-        loss = F.nll_loss(output, target)
+        loss = F.nll_loss(output[-1], target)
         loss.backward()
         optimizer.step()
         if batch_idx % log_interval == 0:
@@ -53,8 +58,8 @@ def test(network, test_loader, test_losses, test_correct, set_name):
     with torch.no_grad():
         for data, target in test_loader:
             output = network(data)
-            test_loss += F.nll_loss(output, target, size_average=False).item()
-            pred = output.data.max(1, keepdim=True)[1]
+            test_loss += F.nll_loss(output[-1], target, size_average=False).item()
+            pred = output[-1].data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
     test_loss /= len(test_loader.dataset)
     test_losses.append(test_loss)

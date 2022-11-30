@@ -39,7 +39,7 @@ def collate_fun(examples):
 def prep_data():
     data = datasets.load_dataset("mnist")
     
-    label_list = [{0,1}, {2,3}, {4,5}, {6,7}, {8,9}]
+    label_list = [{0,1}, {2,3}, {0,1,2,3}, {6,7}, {0,1,6,7}]
     tasks = task_split(data['train'], label_list)
     subtests = task_split(data['test'], label_list)
 
